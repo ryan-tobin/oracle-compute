@@ -1,0 +1,10 @@
+PROJECT_NAME            = "Oracle Compute"
+PROJECT_NUMBER          = "0.1.0"
+OUTPUT_DIRECTORY        = docs/generated/doxygen
+INPUT                   = src/c include 
+RECURSIVE               = YES
+EXTRACT_ALL             = YES
+GENERATE_HTML           = YES
+GENERATE_LATEX          = NO
+SOURCE_BROWSER          = YES
+INLINE_SOURCES          = YES

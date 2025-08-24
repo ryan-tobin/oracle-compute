@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust: [stable, beta, nightly]
+        exclude:
+          - os: windows-latest
+            rust: beta
+          - os: windows-latest
+            rust: nightly
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ matrix.rust }}
+        components: rustfmt, clippy
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Install system dependencies
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake python3-dev nodejs npm
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          brew install cmake python3 node npm
+        fi
+      shell: bash
+
+    - name: Format check
+      run: cargo fmt --all -- --check
+
+    - name: Clippy check
+      run: cargo clippy --all-targets --all-features -- -D warnings
+
+    - name: Build
+      run: ./scripts/build/build_all.sh
+
+    - name: Test
+      run: ./scripts/test/run_tests.sh
+
+    - name: Benchmark
+      run: cargo bench --no-run
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Security audit
+      uses: actions-rs/audit-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}

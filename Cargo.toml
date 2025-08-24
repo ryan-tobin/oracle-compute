@@ -1,0 +1,43 @@
+[package]
+name = "orace-compute"
+version = "0.1.0"
+edition = "2021"
+authors = ["Ryan Tobin <ryantobin119@gmail.com>"]
+description = "Precognitive Computation Engine"
+license = "Apache-2.0"
+repository = "https://github.com/ryan-tobin/oracle-compute"
+documentation = "https://docs.rs/oracle-compute"
+keywords = ["temporal", "prediction", "computation", "precognition"]
+categories = ["algorithms", "science", "simulation"]
+
+[dependencies]
+libc = "0.2"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+rayon = "1.7"
+crossbeam = "0.8"
+parking_lot = "0.12"
+
+[dev-dependencies]
+criterion = "0.5"
+proptest = "1.0"
+quickcheck = "1.0"
+tempfile = "3.0"
+
+[build-dependencies]
+cc = "1.0"
+bindgen = "0.69"
+cmake = "0.1"
+
+[[bench]]
+name = "temporal_benchmarks"
+harness = false
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.bench]
+lto = true
+codegen-units = 1
